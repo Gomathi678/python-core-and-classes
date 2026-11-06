@@ -1,10 +1,11 @@
 
+
 import csv
 from pathlib import Path
 from functools import wraps
 
 
-# 1. Function with default values, *args and **kwargs
+# 1. Calculate bonus using *args and **kwargs
 
 def calculate_bonus(salary, rate=0.1, *extras, **options):
     bonus = salary * rate + sum(extras)
@@ -20,7 +21,7 @@ def calculate_bonus(salary, rate=0.1, *extras, **options):
 def log_call(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        print(f"Calling function: {func.__name__}")
+        print("Calling get_details")
         return func(*args, **kwargs)
 
     return wrapper
@@ -35,14 +36,14 @@ class Employee:
         self.salary = salary
 
     def get_details(self):
-        return f"Employee Name: {self.name}, Salary: Rs.{self.salary}"
+        return f"{self.name} - {self.salary}"
 
     @property
     def annual_salary(self):
         return self.salary * 12
 
 
-# 4. Manager class using inheritance
+# 4. Manager class with inheritance
 
 class Manager(Employee):
 
@@ -52,50 +53,56 @@ class Manager(Employee):
 
     @log_call
     def get_details(self):
-        return (
-            f"Manager Name: {self.name}, "
-            f"Salary: Rs.{self.salary}, "
-            f"Team Size: {self.team_size}"
-        )
+        return f"{self.name} - {self.salary} - Team Size: {self.team_size}"
 
 
-# 5. Read employee data from CSV using pathlib
+# 5. Read CSV and categorize salaries
 
-def read_employees():
+def salary_categories():
+
     file_path = Path(__file__).parent / "employees.csv"
 
     with open(file_path, "r", newline="") as file:
         reader = csv.DictReader(file)
 
         for employee in reader:
-            print(employee)
+
+            name = employee["name"]
+            salary = int(employee["salary"])
+
+            if salary < 50000:
+                category = "Low Salary"
+
+            elif salary < 70000:
+                category = "Medium Salary"
+
+            else:
+                category = "High Salary"
+
+            print(f"{name} - {category}")
 
 
 # 6. Main program
 
 if __name__ == "__main__":
 
-    print("===== BONUS CALCULATION =====")
-
-    bonus = calculate_bonus(30000)
-    print("Bonus:", bonus)
-
-    bonus = calculate_bonus(30000, 0.1, 500, 1000, cap=3500)
-    print("Bonus with extras and cap:", bonus)
-
-    print("\n===== EMPLOYEE DETAILS =====")
-
-    emp = Employee("Arun", 30000)
-
-    print(emp.get_details())
-    print("Annual Salary:", emp.annual_salary)
+    print("===== SALARY CATEGORIES =====")
+    salary_categories()
 
     print("\n===== MANAGER DETAILS =====")
 
-    manager = Manager("Priya", 60000, 5)
-
+    manager = Manager("Divya", 75000, 5)
     print(manager.get_details())
 
-    print("\n===== EMPLOYEES CSV DATA =====")
+    print("\n===== BONUS CALCULATION =====")
 
-    read_employees()
+    print("Bonus:", calculate_bonus(30000))
+    print(
+        "Bonus with extras and cap:",
+        calculate_bonus(30000, 0.1, 500, 1000, cap=3500)
+    )
+
+    print("\n===== ANNUAL SALARY =====")
+
+    emp = Employee("Arun", 30000)
+    print(emp.annual_salary)
