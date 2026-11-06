@@ -1,11 +1,9 @@
-
-
 import csv
-from pathlib import Path
 from functools import wraps
-
+from pathlib import Path
 
 # 1. Calculate bonus using *args and **kwargs
+
 
 def calculate_bonus(salary, rate=0.1, *extras, **options):
     bonus = salary * rate + sum(extras)
@@ -18,6 +16,7 @@ def calculate_bonus(salary, rate=0.1, *extras, **options):
 
 # 2. Decorator
 
+
 def log_call(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -29,8 +28,8 @@ def log_call(func):
 
 # 3. Employee class
 
-class Employee:
 
+class Employee:
     def __init__(self, name, salary):
         self.name = name
         self.salary = salary
@@ -45,8 +44,8 @@ class Employee:
 
 # 4. Manager class with inheritance
 
-class Manager(Employee):
 
+class Manager(Employee):
     def __init__(self, name, salary, team_size):
         super().__init__(name, salary)
         self.team_size = team_size
@@ -58,15 +57,14 @@ class Manager(Employee):
 
 # 5. Read CSV and categorize salaries
 
-def salary_categories():
 
+def salary_categories():
     file_path = Path(__file__).parent / "employees.csv"
 
     with open(file_path, "r", newline="") as file:
         reader = csv.DictReader(file)
 
         for employee in reader:
-
             name = employee["name"]
             salary = int(employee["salary"])
 
@@ -85,7 +83,6 @@ def salary_categories():
 # 6. Main program
 
 if __name__ == "__main__":
-
     print("===== SALARY CATEGORIES =====")
     salary_categories()
 
@@ -98,8 +95,7 @@ if __name__ == "__main__":
 
     print("Bonus:", calculate_bonus(30000))
     print(
-        "Bonus with extras and cap:",
-        calculate_bonus(30000, 0.1, 500, 1000, cap=3500)
+        "Bonus with extras and cap:", calculate_bonus(30000, 0.1, 500, 1000, cap=3500)
     )
 
     print("\n===== ANNUAL SALARY =====")
