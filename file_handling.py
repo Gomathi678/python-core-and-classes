@@ -1,4 +1,3 @@
-
 import csv
 import json
 import logging
@@ -8,12 +7,8 @@ from typing import List, Optional, Union
 import fitz
 from openpyxl import Workbook, load_workbook
 
-
 # Configure logging
-logging.basicConfig(
-    level=logging.ERROR,
-    format="%(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.ERROR, format="%(levelname)s - %(message)s")
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +22,6 @@ def get_salary_value(salary: Union[int, str]) -> int:
 
 # 2. Read employees from CSV
 def read_employees() -> List[dict]:
-
     csv_path = BASE_DIR / "employees.csv"
 
     with open(csv_path, "r", newline="", encoding="utf-8") as file:
@@ -39,7 +33,6 @@ def read_employees() -> List[dict]:
 
 # 3. Write employees.json
 def write_json(employees: List[dict]) -> None:
-
     json_path = BASE_DIR / "employees.json"
 
     with open(json_path, "w", encoding="utf-8") as file:
@@ -50,9 +43,9 @@ def write_json(employees: List[dict]) -> None:
 
 # 4. Write high earners CSV
 def write_high_earners(employees: List[dict]) -> int:
-
     high_earners = [
-        employee for employee in employees
+        employee
+        for employee in employees
         if get_salary_value(employee["salary"]) > 50000
     ]
 
@@ -70,7 +63,6 @@ def write_high_earners(employees: List[dict]) -> int:
 
 # 5. Create and read Excel file
 def create_salary_excel(employees: List[dict]) -> int:
-
     excel_path = BASE_DIR / "salary.xlsx"
 
     workbook = Workbook()
@@ -80,11 +72,13 @@ def create_salary_excel(employees: List[dict]) -> int:
     sheet.append(["Name", "Department", "Salary"])
 
     for employee in employees:
-        sheet.append([
-            employee["name"],
-            employee["department"],
-            get_salary_value(employee["salary"])
-        ])
+        sheet.append(
+            [
+                employee["name"],
+                employee["department"],
+                get_salary_value(employee["salary"]),
+            ]
+        )
 
     workbook.save(excel_path)
 
@@ -101,7 +95,6 @@ def create_salary_excel(employees: List[dict]) -> int:
 
 # 6. Extract first page PDF text
 def extract_pdf_text() -> None:
-
     pdf_path = BASE_DIR / "sample.pdf"
 
     if not pdf_path.exists():
@@ -109,7 +102,6 @@ def extract_pdf_text() -> None:
         return
 
     with fitz.open(pdf_path) as document:
-
         if len(document) == 0:
             logger.error("PDF contains no pages")
             return
@@ -122,7 +114,6 @@ def extract_pdf_text() -> None:
 
 # 7. Read JSON file with exception handling
 def read_file(path: Union[str, Path]) -> Optional[dict]:
-
     file_path = Path(path)
 
     try:
@@ -146,9 +137,6 @@ def read_file(path: Union[str, Path]) -> Optional[dict]:
 
 # 8. Find employee by name
 def find_employee(name: str) -> Optional[dict]:
-
-
-
     # employees.json contains a list, so load it directly
     json_path = BASE_DIR / "employees.json"
 
@@ -168,24 +156,17 @@ def find_employee(name: str) -> Optional[dict]:
 
 # 9. Main program
 if __name__ == "__main__":
-
     employees = read_employees()
 
     write_json(employees)
 
     high_count = write_high_earners(employees)
 
-    print(
-        f"Rows read: {len(employees)} | "
-        f"High earners written: {high_count}"
-    )
+    print(f"Rows read: {len(employees)} | High earners written: {high_count}")
 
     excel_count = create_salary_excel(employees)
 
-    print(
-        f"salary.xlsx created and read back: "
-        f"{excel_count} rows"
-    )
+    print(f"salary.xlsx created and read back: {excel_count} rows")
 
     extract_pdf_text()
 

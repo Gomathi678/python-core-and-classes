@@ -1,14 +1,12 @@
-
-import os
-import hmac
 import hashlib
-import requests
-
+import hmac
+import os
 from pathlib import Path
+
+import requests
 from dotenv import load_dotenv
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
-
 
 # 1. Load environment variables
 
@@ -25,15 +23,15 @@ if not API_KEY or not WEBHOOK_SECRET:
 
 # 2. Create requests Session with retry logic
 
-def create_session() -> requests.Session:
 
+def create_session() -> requests.Session:
     session = requests.Session()
 
     retry_strategy = Retry(
         total=3,
         backoff_factor=1,
         status_forcelist=[500, 502, 503, 504],
-        allowed_methods={"GET"}
+        allowed_methods={"GET"},
     )
 
     adapter = HTTPAdapter(max_retries=retry_strategy)
@@ -46,8 +44,8 @@ def create_session() -> requests.Session:
 
 # 3. Fetch users from REST API
 
-def fetch_users() -> None:
 
+def fetch_users() -> None:
     url = "https://jsonplaceholder.typicode.com/users"
 
     session = create_session()
@@ -61,11 +59,7 @@ def fetch_users() -> None:
         print("===== FIRST 5 USERS =====")
 
         for user in users[:5]:
-            print(
-                f"{user.get('id')} - "
-                f"{user.get('name')} - "
-                f"{user.get('email')}"
-            )
+            print(f"{user.get('id')} - {user.get('name')} - {user.get('email')}")
 
         # 4. Access nested JSON using .get() only
 
@@ -96,77 +90,47 @@ def fetch_users() -> None:
 
 # 5. Verify HMAC-SHA256 signature
 
-def verify_signature(
-    payload: bytes,
-    signature: str,
-    secret: str
-) -> bool:
 
+def verify_signature(payload: bytes, signature: str, secret: str) -> bool:
     expected_signature = hmac.new(
-        secret.encode("utf-8"),
-        payload,
-        hashlib.sha256
+        secret.encode("utf-8"), payload, hashlib.sha256
     ).hexdigest()
 
-    return hmac.compare_digest(
-        expected_signature,
-        signature
-    )
+    return hmac.compare_digest(expected_signature, signature)
 
 
 # 6. Test valid, tampered and wrong-secret cases
 
-def test_webhook() -> None:
 
+def test_webhook() -> None:
     payload = b'{"employee_id": 101, "event": "employee_created"}'
 
     secret = WEBHOOK_SECRET
 
     # Generate correct signature
     valid_signature = hmac.new(
-        secret.encode("utf-8"),
-        payload,
-        hashlib.sha256
+        secret.encode("utf-8"), payload, hashlib.sha256
     ).hexdigest()
 
     # Valid payload
-    valid = verify_signature(
-        payload,
-        valid_signature,
-        secret
-    )
+    valid = verify_signature(payload, valid_signature, secret)
 
     # Tampered payload
-    tampered_payload = (
-        b'{"employee_id": 102, "event": "employee_created"}'
-    )
+    tampered_payload = b'{"employee_id": 102, "event": "employee_created"}'
 
-    tampered = verify_signature(
-        tampered_payload,
-        valid_signature,
-        secret
-    )
+    tampered = verify_signature(tampered_payload, valid_signature, secret)
 
     # Wrong secret
-    wrong_secret = verify_signature(
-        payload,
-        valid_signature,
-        "wrong_secret"
-    )
+    wrong_secret = verify_signature(payload, valid_signature, "wrong_secret")
 
     print("\n===== WEBHOOK SECURITY =====")
 
-    print(
-        f"Valid: {valid} | "
-        f"Tampered: {tampered} | "
-        f"Wrong secret: {wrong_secret}"
-    )
+    print(f"Valid: {valid} | Tampered: {tampered} | Wrong secret: {wrong_secret}")
 
 
 # 7. Main program
 
 if __name__ == "__main__":
-
     fetch_users()
 
     test_webhook()
